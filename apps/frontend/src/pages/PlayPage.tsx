@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getCurrentDay } from '../services/firestoreService';
 import { usePlay } from '../hooks/usePlay';
@@ -30,13 +31,27 @@ function PlayPage() {
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  const [searchParams] = useSearchParams();
+  const dayParam = searchParams.get('day');
+
   useEffect(() => {
     setImageLoaded(false);
   }, [question?.image]);
 
   useEffect(() => {
-    if (currentUser) initialize();
-  }, [currentUser, initialize]);
+    if (currentUser) {
+      if (dayParam) {
+        const day = parseInt(dayParam, 10);
+        if (!isNaN(day)) {
+          fetchQuestion(day);
+        } else {
+          initialize();
+        }
+      } else {
+        initialize();
+      }
+    }
+  }, [currentUser, initialize, dayParam, fetchQuestion]);
 
   const handleSelectDay = useCallback(async (day: number) => {
     const currentDay = getCurrentDay();
@@ -226,43 +241,43 @@ function PlayPage() {
         </div>
 
         <AnimatePresence>
-  {showFinalCongrats && (
-    <motion.div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="rounded-2xl p-6 max-w-md w-full mx-4 text-center 
+          {showFinalCongrats && (
+            <motion.div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="rounded-2xl p-6 max-w-md w-full mx-4 text-center 
                    bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <h2 className="text-2xl font-semibold text-white mb-4 tracking-wide">
-          🎉 Congratulations! 🎉
-        </h2>
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h2 className="text-2xl font-semibold text-white mb-4 tracking-wide">
+                  🎉 Congratulations! 🎉
+                </h2>
 
-        <p className="text-gray-200 leading-relaxed">
-          You’ve completed all available challenges!<br />
-          Absolute legend energy.
-        </p>
+                <p className="text-gray-200 leading-relaxed">
+                  You’ve completed all available challenges!<br />
+                  Absolute legend energy.
+                </p>
 
-        <div className="mt-6">
-          <button
-            onClick={() => setShowFinalCongrats(false)}
-            className="px-6 py-2.5 rounded-lg bg-white/20 text-white 
+                <div className="mt-6">
+                  <button
+                    onClick={() => setShowFinalCongrats(false)}
+                    className="px-6 py-2.5 rounded-lg bg-white/20 text-white 
                        hover:bg-white/30 transition-colors border border-white/30"
-          >
-            Awesome!
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+                  >
+                    Awesome!
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
 

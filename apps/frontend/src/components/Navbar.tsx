@@ -40,7 +40,7 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
   useEffect(() => {
     lastScrollY.current = 0;
     setVisible(true);
-    
+
     const getScrollElement = (): HTMLElement | null => {
       if (isAboutUsPage) {
         return document.querySelector('[data-about-us-scroll]') as HTMLElement;
@@ -49,10 +49,10 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
       }
       return null;
     };
-    
+
     const handleScroll = () => {
       let current: number;
-      
+
       if (hasCustomScroll) {
         const scrollElement = getScrollElement();
         if (!scrollElement) return;
@@ -60,7 +60,7 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
       } else {
         current = window.scrollY;
       }
-      
+
       if (!ticking.current) {
         window.requestAnimationFrame(() => {
           if (current <= 0) {
@@ -81,7 +81,7 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
       let scrollElement: HTMLElement | null = null;
       let timeoutIds: NodeJS.Timeout[] = [];
       let observer: MutationObserver | null = null;
-      
+
       const setupScrollListener = () => {
         const element = getScrollElement();
         if (element && !scrollElement) {
@@ -92,7 +92,7 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
         }
         return false;
       };
-      
+
       if (!setupScrollListener()) {
         for (let i = 0; i < 5; i++) {
           const timeoutId = setTimeout(() => {
@@ -100,19 +100,19 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
           }, 50 * (i + 1));
           timeoutIds.push(timeoutId);
         }
-        
+
         observer = new MutationObserver(() => {
           if (setupScrollListener() && observer) {
             observer.disconnect();
           }
         });
-        
+
         observer.observe(document.body, {
           childList: true,
           subtree: true,
         });
       }
-      
+
       return () => {
         timeoutIds.forEach(id => clearTimeout(id));
         if (observer) observer.disconnect();
@@ -151,18 +151,22 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
             <img
               src={Logo}
               alt="Enigma logo"
-        className="h- sm:h-8 md:h-9 w-auto object-contain select-none -ml-12"
+              className="h- sm:h-8 md:h-9 w-auto object-contain select-none -ml-12"
             />
           </Link>
 
           <div className="hidden lg:flex items-center space-x-10">
             <nav className="flex items-center space-x-10">
               {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+                let path = item.path;
+                if (item.name === "Play") {
+                  path = currentUser ? "/levels" : "/play";
+                }
+                const isActive = location.pathname === path;
                 return (
                   <Link
                     key={item.name}
-                    to={item.path}
+                    to={path}
                     className={cn(
                       "text-sm tracking-wide transition-colors relative group",
                       "font-semibold",
@@ -241,17 +245,23 @@ export function Navbar({ isSignInPage = false, className }: NavbarProps) {
           </div>
 
           <nav className="flex flex-col mt-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                onClick={() => setOpen(false)}
-                className="px-6 py-4 text-black font-medium flex justify-between items-center border-b border-black/10 hover:bg-black hover:text-white transition-colors"
-              >
-                {item.name}
-                <span className="text-black/40">›</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              let path = item.path;
+              if (item.name === "Play") {
+                path = currentUser ? "/levels" : "/play";
+              }
+              return (
+                <Link
+                  key={item.name}
+                  to={path}
+                  onClick={() => setOpen(false)}
+                  className="px-6 py-4 text-black font-medium flex justify-between items-center border-b border-black/10 hover:bg-black hover:text-white transition-colors"
+                >
+                  {item.name}
+                  <span className="text-black/40">›</span>
+                </Link>
+              )
+            })}
           </nav>
         </div>
 

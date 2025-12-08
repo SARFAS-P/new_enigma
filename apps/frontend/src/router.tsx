@@ -12,6 +12,7 @@ const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const Rules = lazy(() => import("./pages/Rules"));
 const AboutUs = lazy(() => import("@/pages/AboutUs"));
 const HowItWorks = lazy(() => import("./pages/HowitWorks"));
+const LevelMapPage = lazy(() => import("./pages/LevelMapPage"));
 
 // Fallback loader
 const PageLoader = () => (
@@ -74,6 +75,18 @@ function AppRouter() {
             <Suspense fallback={<PageLoader />}>
               <SignInPage />
             </Suspense>
+          ),
+        },
+
+        // LEVELS (Protected)
+        {
+          path: "/levels",
+          element: (
+            <ProtectedRoute>
+              <Suspense fallback={<PageLoader />}>
+                <LevelMapPage />
+              </Suspense>
+            </ProtectedRoute>
           ),
         },
 
